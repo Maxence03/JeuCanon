@@ -8,8 +8,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Point
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Bundle
 import android.util.AttributeSet
+import android.util.SparseIntArray
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.MotionEvent
@@ -37,12 +40,36 @@ class DrawingView @JvmOverloads constructor (context: Context, attributes: Attri
     var totalElapsedTime = 0.0
     var originalTime = 10.0
     var currentTime = 0.0
+    val soundPool: SoundPool
+    val soundMap: SparseIntArray
 
     init {
         backgroundPaint.color = Color.GREEN
         textPaint.textSize = screenWidth/20
         textPaint.color = Color.BLACK
         timeLeft = 10.0
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(1)
+            .setAudioAttributes(audioAttributes)
+            .build()
+        soundMap = SparseIntArray(3)
+        soundMap.put(0, soundPool.load(context, R.raw.target_hit, 1))
+        soundMap.put(1, soundPool.load(context, R.raw.canon_fire, 1))
+        soundMap.put(2, soundPool.load(context, R.raw.blocker_hit, 1))
+    }
+
+    fun playObstacleSound() {
+        soundPool.play(soundMap.get(2), 1f, 1f, 1, 0, 1f)
+    }
+
+    fun playCibleSound() {
+        soundPool.play(soundMap.get(0), 1f, 1f, 1, 0, 1f)
     }
 
     fun pause() {
@@ -129,6 +156,7 @@ class DrawingView @JvmOverloads constructor (context: Context, attributes: Attri
             val angle = alignCanon(event) // calcul de l'angle du canon
             balle.launch(angle)
             ++shotsFired // incrémente le nombre de coups tirés
+            soundPool.play(soundMap.get(1), 1f, 1f, 1, 0, 1f)
         }
     }
 
@@ -175,15 +203,15 @@ class DrawingView @JvmOverloads constructor (context: Context, attributes: Attri
         gameOver = true
     }
 
-    fun showGameOverDialog() {
+    fun showGameOverDialog(win: Int) {
         class GameResult: DialogFragment() {
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
-                builder.setTitle(resources.getString(messageId))  //titre de la bulle de dialogue
+                builder.setTitle(resources.getString(R.string.messageId))  //titre de la bulle de dialogue
                 builder.setMessage( //message transmis
                     resources.getString(
-                        R.string.results_format, shotsFired, totalElapsedTime // déclaration du temps restant à la fin de la partie
-                    )
+                        R.string.results_format, shotsFired, totalElapsedTime) // déclaration du temps restant à la fin de la partie
+
                 )
                 builder.setPositiveButton(R.string.reset_game, // activation du boutton à texte
                     DialogInterface.OnClickListener { _, _->newGame()}
@@ -193,7 +221,8 @@ class DrawingView @JvmOverloads constructor (context: Context, attributes: Attri
         }
         activity.runOnUiThread(
             Runnable {
-                val ft = activity.supportFragmentManager.beginTransaction() // pour faire apparaitre le fragment
+                val ft =
+                    activity.supportFragmentManager.beginTransaction() // pour faire apparaitre le fragment
                 val prev =
                     activity.supportFragmentManager.findFragmentByTag("dialog")
                 if (prev != null) {
@@ -202,9 +231,9 @@ class DrawingView @JvmOverloads constructor (context: Context, attributes: Attri
                 ft.addToBackStack(null)
                 val gameResult = GameResult()
                 gameResult.setCancelable(false)
-                gameResult.show(ft,"dialog") // fait apparaitre la fenetre
-        )
-    }}
+                gameResult.show(ft, "dialog") // fait apparaitre la fenetre
+            })
+    }
 
     fun newGame() {
         cible.resetCible()

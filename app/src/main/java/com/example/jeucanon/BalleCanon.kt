@@ -42,6 +42,7 @@ class BalleCanon (var view: DrawingView, val obstacle: Obstacle, val cible: Cibl
                 canonballVitesseX *= -1 // si la balle touche l'obstacle, elle est renvoyée dans l'autre sens
                 canonball.offset((3 * canonballVitesseX * interval).toFloat(), 0f)
                 view.reduceTimeLeft()
+                view.playObstacleSound()
             }
             // Si elle sort de l'écran
             else if (canonball.x + canonballRadius > view.screenWidth

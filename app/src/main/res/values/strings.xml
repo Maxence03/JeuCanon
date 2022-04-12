@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">JeuCanon</string>
+    <string name="win">Tu as gagné !</string>
+    <string name="lose">Tu as perdu !</string>
+    <string name="results_format">Nombre de tirs : %1$d\nTemps écoulé : %2$.1f</string>
+    <string name="reset_game">Redémarre le jeu</string>
+    <string name="messageId">Dialogue</string>
 </resources>

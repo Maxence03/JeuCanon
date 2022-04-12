@@ -50,6 +50,7 @@ class Cible (var cibleDistance: Float, var cibleDebut: Float, var cibleFin: Floa
             cibleTouchee[section] = true
             balle.resetCanonBall()
             view.increaseTimeLeft()
+            view.playCibleSound()
         }
         if (++nbreCiblesTouchees == CIBLE_PIECES) view.gameOver()
     }

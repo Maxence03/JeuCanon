@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.jeucanon.DrawingView
 import com.example.jeucanon.R
+import androidx.fragment.app.Fragment
 import java.util.*
 
 class MainActivity: AppCompatActivity() {
@@ -13,7 +14,7 @@ class MainActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        drawingView = findViewById(R.id.vMain)
+        //drawingView = findViewById(R.id.vMain)
     }
 
     override fun onPause() {
@@ -26,3 +27,4 @@ class MainActivity: AppCompatActivity() {
         drawingView.resume()
     }
 }
+
